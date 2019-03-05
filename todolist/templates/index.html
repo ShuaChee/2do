@@ -1,0 +1,27 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>2Do List</title>
+    </head>
+    <body>
+    <ul>
+        <form action="{% url 'create' %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="task_text" placeholder="Task text">
+            <button type="submit">Add task</button>
+        </form>
+        {% for task in TaskList %}
+        <li>
+            {{ task.task_text }}
+            {% if task.task_done %}
+                <a href="{% url 'done' task.id %}">Undone!</a>
+            {% else %}
+                <a href="{% url 'done' task.id %}">Done!</a>
+            {% endif %}
+            <a href="{% url 'delete' task.id %}">Delete task</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    </body>
+</html>
