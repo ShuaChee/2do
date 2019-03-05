@@ -10,3 +10,11 @@ class Task(models.Model):
 
     def __str__(self):
         return self.task_text
+
+    def new(self, task_text):
+        self.task_text = task_text
+        self.save()
+
+    def toggle_done(self):
+        self.task_done = not self.task_done
+        self.save()

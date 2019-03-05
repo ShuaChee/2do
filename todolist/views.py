@@ -12,20 +12,17 @@ def index(request):
 def create(request):
     task_text = request.POST['task_text']
     task = Task()
-    task.task_text = task_text
-    task.save()
+    task.new(task_text)
     return redirect('index')
 
 
 def done(request, pk):
-    task = Task.objects.filter(id=pk).get()
-    print(task)
-    task.task_done = not task.task_done
-    task.save()
+    task = Task.objects.get(pk=pk)
+    task.toggle_done()
     return redirect('index')
 
 
 def delete(request, pk):
-    task = Task.objects.filter(id=pk)
+    task = Task.objects.get(id=pk)
     task.delete()
     return redirect('index')
