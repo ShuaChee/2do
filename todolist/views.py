@@ -1,14 +1,59 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Task
 from .forms import TaskForm
 
 
 # Create your views here.
 
-def index(request, error_message=None):
-    print(error_message)
-    TaskList = Task.objects.all().order_by('-id')
-    return render(request, 'index.html', {'TaskList': TaskList, 'error_message': error_message})
+class TaskList(ListView):
+    model = Task
+    context_object_name = 'task_list'
+
+
+class TaskCreate(CreateView):
+    form_class = TaskForm
+    model = Task
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('index')
+
+    def form_invalid(self, form):
+        task_list = Task.objects.all()
+        errors = form.errors
+        return render(self.request, 'todolist/task_list.html', {'task_list': task_list, 'errors': errors})
+
+    '''def post(self, request):
+        return redirect('index')
+        
+    def post(self, request, *args, **kwargs):
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = Task()
+            task.new(form.cleaned_data['task_text'])
+            return redirect('index')
+
+    def get(self, request):
+        return redirect('index')  # если GET то просто назад к списку
+'''
+
+
+class TaskUpdate(UpdateView):
+
+    def get(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        task.toggle_done()
+        return redirect('index')
+
+
+class TaskDelete(DeleteView):
+    '''С POST было бы короче..'''
+
+    def get(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        task.delete()
+        return redirect('index')
 
 
 def create(request):
@@ -21,16 +66,4 @@ def create(request):
             return redirect('index')
         else:
             return index(request, error_message="Invalid task text")
-    return redirect('index')
-
-
-def done(request, pk):
-    task = Task.objects.get(pk=pk)
-    task.toggle_done()
-    return redirect('index')
-
-
-def delete(request, pk):
-    task = Task.objects.get(id=pk)
-    task.delete()
     return redirect('index')
