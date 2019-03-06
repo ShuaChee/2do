@@ -24,20 +24,6 @@ class TaskCreate(CreateView):
         errors = form.errors
         return render(self.request, 'todolist/task_list.html', {'task_list': task_list, 'errors': errors})
 
-    '''def post(self, request):
-        return redirect('index')
-        
-    def post(self, request, *args, **kwargs):
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            task = Task()
-            task.new(form.cleaned_data['task_text'])
-            return redirect('index')
-
-    def get(self, request):
-        return redirect('index')  # если GET то просто назад к списку
-'''
-
 
 class TaskUpdate(UpdateView):
 
@@ -48,22 +34,8 @@ class TaskUpdate(UpdateView):
 
 
 class TaskDelete(DeleteView):
-    '''С POST было бы короче..'''
 
     def get(self, request, pk):
         task = get_object_or_404(Task, pk=pk)
         task.delete()
         return redirect('index')
-
-
-def create(request):
-    if request.method == 'POST':
-        taskform = TaskForm(request.POST)
-        if taskform.is_valid():
-            task_text = taskform.cleaned_data['task_text']
-            task = Task()
-            task.new(task_text)
-            return redirect('index')
-        else:
-            return index(request, error_message="Invalid task text")
-    return redirect('index')
