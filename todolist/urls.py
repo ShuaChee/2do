@@ -1,7 +1,6 @@
 from django.urls import path
-
-from . import views
 from todolist.views import TaskList, TaskCreate, TaskUpdate, TaskDelete
+
 
 urlpatterns = [
     path('', TaskList.as_view(), name='index'),

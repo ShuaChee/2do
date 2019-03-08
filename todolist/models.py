@@ -1,9 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
-
-
 class Task(models.Model):
     task_text = models.CharField(max_length=255, error_messages={'required': 'Please, enter task text'}, blank=False,
                                  null=False)
@@ -11,7 +8,6 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['-id']
-
 
     def __str__(self):
         return self.task_text
