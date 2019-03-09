@@ -7,8 +7,6 @@ from .models import Task, MySession
 from .forms import TaskForm
 
 
-# Create your views here.
-
 class TaskList(ListView):
     model = Task
     context_object_name = 'task_list'
