@@ -1,6 +1,9 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .models import Task
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
+
+from .models import Task, MySession
 from .forms import TaskForm
 
 
@@ -39,3 +42,16 @@ class TaskDelete(DeleteView):
         task = get_object_or_404(Task, pk=pk)
         task.delete()
         return redirect('index')
+
+
+class SessionView(View):
+
+    def get(self, request):
+        cookie = request.COOKIES.get('my_session_id')
+        return cookie
+
+    def set(self):
+        session = MySession()
+        response = HttpResponse.set_cookie('my_session_id', session.session_id)
+        session.save()
+        return response

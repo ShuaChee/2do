@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -12,14 +13,13 @@ class Task(models.Model):
     class Meta:
         ordering = ['-id']
 
-
     def __str__(self):
         return self.task_text
-
-    def new(self, task_text):
-        self.task_text = task_text
-        self.save()
 
     def toggle_done(self):
         self.task_done = not self.task_done
         self.save()
+
+
+class MySession(models.Model):
+    session_id = models.CharField(max_length=255, null=False)
