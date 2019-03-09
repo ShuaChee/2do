@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>2Do List</title>
@@ -10,12 +13,26 @@
     <div class="row justify-content-md-center">
         <div class="col col-lg-auto">
             {% if user_name %}
-            <a href="{% url 'logout' %}">{{ user_name }}</a>
+                <i class="fa fa-user"></i>
+                {{ user_name }}
+                <a href="{% url 'logout' %}" alt="Logout"><i class="fa fa-sign-out"></i></a>
             {% endif %}
         </div>
     </div>
     <div class="row justify-content-md-center">
-        {% if errors %}<p><strong>{{ errors }}</strong></p>{% endif %}
+        <div class="col col-lg-auto">
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
         <div class="col col-lg-auto">
             <form action="{% url 'create' %}" method="post" class="form-inline">
                 {% csrf_token %}
@@ -27,20 +44,24 @@
         </div>
     </div>
     <div class="row justify-content-md-center">
-        <div class="col col-md-auto">
-            <ul class="list-group">
+        <div class="col col-md-6">
+            <div class="box-body">
+            <ul class="list-group todo-list ui-sortable">
                 {% for task in task_list %}
-                <li class="list-group-item">
-                    {{ task.task_text }}
-                    {% if task.task_done %}
-                    <a href="{% url 'done' task.id %}">Undone!</a>
-                    {% else %}
-                    <a href="{% url 'done' task.id %}">Done!</a>
-                    {% endif %}
-                    <a href="{% url 'delete' task.id %}">Delete task</a>
+                <li class="list-group-item {% if task.task_done %} task-done {% endif %}">
+                    <span class="text">{{ task.task_text }}</span>
+                     <div class="tools">
+                        {% if task.task_done %}
+                        <a href="{% url 'done' task.id %}" alt="Undone"><i class="fa fa-check-circle"></i></a>
+                        {% else %}
+                        <a href="{% url 'done' task.id %}" alt="Done!"><i class="fa fa-check"></i></a>
+                        {% endif %}
+                        <a href="{% url 'delete' task.id %}"><i class="fa fa-trash-o"></i></a>
+                     </div>
                 </li>
                 {% endfor %}
             </ul>
+            </div>
         </div>
     </div>
 </div>

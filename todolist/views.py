@@ -33,8 +33,9 @@ class TaskCreate(CreateView):
 
     def form_invalid(self, form):
         task_list = Task.objects.all()
-        errors = form.errors
-        return render(self.request, 'todolist/task_list.html', {'task_list': task_list, 'errors': errors})
+        user_name = TaskList.get_user(self)
+        return render(self.request, 'todolist/task_list.html',
+                      {'task_list': task_list, 'form': form, 'user_name': user_name})
 
 
 class TaskUpdate(UpdateView):
@@ -63,10 +64,10 @@ class MyLogin(View):
         try:
             self.user = User.objects.get(username=self.user_name)
         except User.DoesNotExist:
-            errors = ['Invalid username']
+            errors = 'Invalid username or password'
             return render(self.request, 'todolist/login.html', {'errors': errors})
         if not self.user.check_password(self.password):
-            errors = ['Invalid password']
+            errors = 'Invalid username or password'
             return render(self.request, 'todolist/login.html', {'errors': errors})
         else:
             session = MySession()

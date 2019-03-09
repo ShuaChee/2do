@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 
 class Task(models.Model):
-    task_text = models.CharField(max_length=255, error_messages={'required': 'Please, enter task text'}, blank=False,
+    task_text = models.CharField(max_length=128, error_messages={'required': 'Please, enter task text'}, blank=False,
                                  null=False)
     task_done = models.BooleanField(default=False)
 
