@@ -60,19 +60,19 @@ class MyLogin(View):
         return render(self.request, 'todolist/login.html')
 
     def post(self, request):
-        self.user_name = request.POST['user_name']
-        self.password = request.POST['user_password']
+        user_name = request.POST['user_name']
+        password = request.POST['user_password']
+
         try:
-            self.user = User.objects.get(username=self.user_name)
+            user = User.objects.get(username=user_name)
         except User.DoesNotExist:
-            errors = 'Invalid username or password'
-            return render(self.request, 'todolist/login.html', {'errors': errors})
-        if not self.user.check_password(self.password):
-            errors = 'Invalid username or password'
-            return render(self.request, 'todolist/login.html', {'errors': errors})
+            return render(self.request, 'todolist/login.html', {'errors': 'Invalid username or password'})
+
+        if not user.check_password(password):
+            return render(self.request, 'todolist/login.html', {'errors': 'Invalid username or password'})
         else:
             session = MySession()
-            session.new(user_name=self.user_name)
+            session.new(user_name=user_name)
             response = redirect('index')
             response.set_cookie(settings.MY_SESSION_ID, session.session_id)
             return response
