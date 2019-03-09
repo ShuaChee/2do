@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -19,4 +20,15 @@ class Task(models.Model):
 
 
 class MySession(models.Model):
+    user_name = models.CharField(max_length=255, null=False, default=None)
     session_id = models.CharField(max_length=255, null=False)
+
+    def new(self, user_name):
+        self.user_name = user_name
+        self.session_id = uuid.uuid1()
+        self.save()
+
+    def session_check(self, session_id):
+        if MySession.objects.get(session_id=session_id):
+            return True
+        return False

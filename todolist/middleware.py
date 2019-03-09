@@ -1,9 +1,20 @@
+from django.conf import settings
+from django.shortcuts import redirect
+from .models import MySession
+
+
 class MyAuthMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         response = self.get_response(request)
-
-        print(response)
+        if request.path in ['/login/', '/logout/']:
+            return response
+        session = MySession()
+        session_id = request.COOKIES.get(settings.MY_SESSION_ID)
+        if session_id and session.session_check(session_id):
+            return response
+        else:
+            response = redirect('login')
         return response

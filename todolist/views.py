@@ -1,5 +1,7 @@
-from django.http import HttpResponse
+from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 
@@ -42,14 +44,39 @@ class TaskDelete(DeleteView):
         return redirect('index')
 
 
-class SessionView(View):
-
+class MyLogin(View):
     def get(self, request):
-        cookie = request.COOKIES.get('my_session_id')
-        return cookie
+        return render(self.request, 'todolist/login.html')
 
-    def set(self):
-        session = MySession()
-        response = HttpResponse.set_cookie('my_session_id', session.session_id)
-        session.save()
-        return response
+    def post(self, request):
+        self.user_name = request.POST['user_name']
+        self.password = request.POST['user_password']
+        try:
+            self.user = User.objects.get(username=self.user_name)
+        except User.DoesNotExist:
+            errors = ['Invalid username']
+            return render(self.request, 'todolist/login.html', {'errors': errors})
+        if not self.user.check_password(self.password):
+            errors = ['Invalid password']
+            return render(self.request, 'todolist/login.html', {'errors': errors})
+        else:
+            session = MySession()
+            session.new(user_name=self.user_name)
+            response = redirect('index')
+            response.set_cookie(settings.MY_SESSION_ID, session.session_id)
+            return response
+
+
+class MyLogout(View):
+    def get(self, request):
+        try:
+            session_id = request.COOKIES[settings.MY_SESSION_ID]
+        except:
+            return redirect('login')
+        response = redirect('login')
+        response.delete_cookie(settings.MY_SESSION_ID)
+        try:
+            session = MySession.objects.get(session_id=session_id)
+            session.delete()
+        finally:
+            return response

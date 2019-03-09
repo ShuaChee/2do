@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+MY_SESSION_ID = 'my_session_id'
 # Application definition
 
 INSTALLED_APPS = [
