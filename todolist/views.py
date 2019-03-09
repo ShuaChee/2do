@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.views import View
@@ -12,6 +11,16 @@ from .forms import TaskForm
 class TaskList(ListView):
     model = Task
     context_object_name = 'task_list'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_name'] = self.get_user()
+        return context
+
+    def get_user(self):
+        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
+        session_user = MySession.objects.get(session_id=session_id)
+        return session_user.user_name
 
 
 class TaskCreate(CreateView):

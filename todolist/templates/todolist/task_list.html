@@ -8,6 +8,13 @@
 <body>
 <div class="container">
     <div class="row justify-content-md-center">
+        <div class="col col-lg-auto">
+            {% if user_name %}
+            <a href="{% url 'logout' %}">{{ user_name }}</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
         {% if errors %}<p><strong>{{ errors }}</strong></p>{% endif %}
         <div class="col col-lg-auto">
             <form action="{% url 'create' %}" method="post" class="form-inline">
