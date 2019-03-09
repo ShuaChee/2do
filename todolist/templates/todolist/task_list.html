@@ -62,6 +62,21 @@
                 {% endfor %}
             </ul>
             </div>
+            {% block pagination %}
+                {% if is_paginated %}
+                <div class="box-tools ">
+                    <ul class="pagination pagination-sm inline">
+                        {% if page_obj.has_previous %}
+                        <li><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">«</a></li>
+                        {% endif %}
+                        <li>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</li>
+                        {% if page_obj.has_next %}
+                        <li><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">»</a></li>
+                      {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            {% endblock %}
         </div>
     </div>
 </div>
