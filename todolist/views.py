@@ -60,10 +60,12 @@ class TaskCreate(CreateView):
         return redirect('index')
 
     def form_invalid(self, form):
-        task_list = Task.objects.all()
+        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
+        user = MySession.get_logged_in_user(session_id)
+        task_list = Task.objects.filter(user=user, task_archived=False)
         user_name = TaskList.get_user(self)
         return render(self.request, 'todolist/task_list.html',
-                      {'task_list': task_list, 'form': form, 'user_name': user_name})
+                      {'task_list': task_list, 'form': form, 'user_name': user_name, 'main_list':'True'})
 
 
 class TaskUpdate(UpdateView):
