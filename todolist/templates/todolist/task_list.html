@@ -13,23 +13,33 @@
     <div class="row justify-content-md-center">
         <div class="col col-lg-auto">
             {% if user_name %}
-                <i class="fa fa-user"></i>
-                {{ user_name }}
-                <a href="{% url 'logout' %}" alt="Logout"><i class="fa fa-sign-out"></i></a>
+            <i class="fa fa-user"></i>
+            {{ user_name }}
+            <a href="{% url 'logout' %}" alt="Logout"><i class="fa fa-sign-out"></i></a>
             {% endif %}
         </div>
     </div>
     <div class="row justify-content-md-center">
         <div class="col col-lg-auto">
-        {% if form.errors %}
+            {% if main_list %}
+                <a href="{% url 'archive_list' %}" class="btn btn-primary">Archive</a>
+            {% else %}
+                <a href="{% url 'index' %}" class="btn btn-primary">Main List</a>
+            {% endif %}
+        </div>
+    </div>
+    {% if main_list %}
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-auto">
+            {% if form.errors %}
             {% for field in form %}
-                {% for error in field.errors %}
-                <div class="alert alert-danger">
-                    {{ error }}
-                </div>
-                {% endfor %}
+            {% for error in field.errors %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
             {% endfor %}
-        {% endif %}
+            {% endfor %}
+            {% endif %}
         </div>
     </div>
     <div class="row justify-content-md-center">
@@ -43,39 +53,46 @@
             </form>
         </div>
     </div>
+    {% endif %}
     <div class="row justify-content-md-center">
         <div class="col col-md-6">
             <div class="box-body">
-            <ul class="list-group todo-list ui-sortable">
-                {% for task in task_list %}
-                <li class="list-group-item {% if task.task_done %} task-done {% endif %}">
-                    <span class="text">{{ task.task_text }}</span>
-                     <div class="tools">
-                        {% if task.task_done %}
-                        <a href="{% url 'done' task.id %}" alt="Undone"><i class="fa fa-check-circle"></i></a>
-                        {% else %}
-                        <a href="{% url 'done' task.id %}" alt="Done!"><i class="fa fa-check"></i></a>
-                        {% endif %}
-                        <a href="{% url 'delete' task.id %}"><i class="fa fa-trash-o"></i></a>
-                     </div>
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="list-group todo-list ui-sortable">
+                    {% for task in task_list %}
+                    <li class="list-group-item {% if task.task_done %} task-done {% endif %}">
+                        <span class="text">{{ task.task_text }}</span>
+                        <div class="tools">
+
+                            {% if task.task_archived %}
+                            <a href="{% url 'archive' task.id %}"><i class="fa fa-archive"></i></a>
+                            <a href="{% url 'delete' task.id %}"><i class="fa fa-trash-o"></i></a>
+                            {% else %}
+                            {% if task.task_done %}
+                            <a href="{% url 'done' task.id %}"><i class="fa fa-check-circle"></i></a>
+                            {% else %}
+                            <a href="{% url 'done' task.id %}"><i class="fa fa-check"></i></a>
+                            {% endif %}
+                            <a href="{% url 'archive' task.id %}"><i class="fa fa-archive"></i></a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
             {% block pagination %}
-                {% if is_paginated %}
-                <div class="box-tools ">
-                    <ul class="pagination pagination-sm inline">
-                        {% if page_obj.has_previous %}
-                        <li><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">«</a></li>
-                        {% endif %}
-                        <li>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</li>
-                        {% if page_obj.has_next %}
-                        <li><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">»</a></li>
-                      {% endif %}
-                    </ul>
-                </div>
-                {% endif %}
+            {% if is_paginated %}
+            <div class="box-tools ">
+                <ul class="pagination pagination-sm inline">
+                    {% if page_obj.has_previous %}
+                    <li><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">«</a></li>
+                    {% endif %}
+                    <li>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</li>
+                    {% if page_obj.has_next %}
+                    <li><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">»</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
             {% endblock %}
         </div>
     </div>

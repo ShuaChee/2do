@@ -15,19 +15,38 @@ class TaskList(ListView):
 
     def get_queryset(self):
         user = self.get_user()
-        query_set = Task.objects.filter(user=user)
+        query_set = Task.objects.filter(user=user, task_archived=False)
         return query_set
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.get_user()
         context['user_name'] = user.username
+        context['main_list'] = 'True'
         return context
 
     def get_user(self):
         session_id = self.request.COOKIES[settings.MY_SESSION_ID]
         user = MySession.get_logged_in_user(session_id)
         return user
+
+
+class TaskArchiveList(ListView):
+    model = Task
+    context_object_name = 'task_list'
+    paginate_by = 10
+
+    def get_queryset(self):
+        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
+        query_set = Task.objects.filter(user=MySession.get_logged_in_user(session_id), task_archived=True)
+        return query_set
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = MySession.get_logged_in_user(self.request.COOKIES[settings.MY_SESSION_ID])
+        context['user_name'] = user.username
+        return context
+
 
 class TaskCreate(CreateView):
     form_class = TaskForm
@@ -55,12 +74,24 @@ class TaskUpdate(UpdateView):
         return redirect('index')
 
 
+class TaskArchive(UpdateView):
+
+    def get(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        if task.task_archived:
+            response = redirect('archive_list')
+        else:
+            response = redirect('index')
+        task.toggle_archived()
+        return response
+
+
 class TaskDelete(DeleteView):
 
     def get(self, request, pk):
         task = get_object_or_404(Task, pk=pk)
         task.delete()
-        return redirect('index')
+        return redirect('archive_list')
 
 
 class MyLogin(View):

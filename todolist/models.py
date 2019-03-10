@@ -1,6 +1,5 @@
 import uuid
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User
 
 
@@ -8,6 +7,7 @@ class Task(models.Model):
     task_text = models.CharField(max_length=128, error_messages={'required': 'Please, enter task text'}, blank=False,
                                  null=False)
     task_done = models.BooleanField(default=False)
+    task_archived = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete='CASCADE')
 
     class Meta:
@@ -19,6 +19,10 @@ class Task(models.Model):
 
     def toggle_done(self):
         self.task_done = not self.task_done
+        self.save()
+
+    def toggle_archived(self):
+        self.task_archived = not self.task_archived
         self.save()
 
 
