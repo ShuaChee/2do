@@ -47,7 +47,6 @@
         <div class="col col-md-6">
             <div class="box-body">
             <ul class="list-group todo-list ui-sortable">
-                {{ task_list }}
                 {% for task in task_list %}
                 <li class="list-group-item {% if task.task_done %} task-done {% endif %}">
                     <span class="text">{{ task.task_text }}</span>
