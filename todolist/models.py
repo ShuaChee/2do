@@ -37,19 +37,3 @@ class MySession(models.Model):
         self.user = user
         self.session_id = uuid.uuid1()
         self.save()
-
-    @staticmethod
-    def session_check(session_id):
-        try:
-            MySession.objects.get(session_id=session_id)
-            return True
-        except MySession.DoesNotExist:
-            return False
-
-    @staticmethod
-    def get_logged_in_user(session_id):
-        try:
-            session = MySession.objects.get(session_id=session_id)
-            return session.user
-        except MySession.DoesNotExist:
-            return False
