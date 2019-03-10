@@ -6,6 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, T
 
 from .models import Task, MySession
 from .forms import TaskForm
+from todolist.session import get_user
 
 
 class TaskList(ListView):
@@ -14,21 +15,15 @@ class TaskList(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        user = self.get_user()
-        query_set = Task.objects.filter(user=user, task_archived=False)
+        query_set = Task.objects.filter(user=get_user(self.request), task_archived=False)
         return query_set
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.get_user()
+        user = get_user(self.request)
         context['user_name'] = user.username
         context['main_list'] = 'True'
         return context
-
-    def get_user(self):
-        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
-        user = MySession.get_logged_in_user(session_id)
-        return user
 
 
 class TaskArchiveList(ListView):
@@ -38,12 +33,12 @@ class TaskArchiveList(ListView):
 
     def get_queryset(self):
         session_id = self.request.COOKIES[settings.MY_SESSION_ID]
-        query_set = Task.objects.filter(user=MySession.get_logged_in_user(session_id), task_archived=True)
+        query_set = Task.objects.filter(user=get_user(self.request), task_archived=True)
         return query_set
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = MySession.get_logged_in_user(self.request.COOKIES[settings.MY_SESSION_ID])
+        user = get_user(self.request)
         context['user_name'] = user.username
         return context
 
@@ -53,19 +48,16 @@ class TaskCreate(CreateView):
     model = Task
 
     def form_valid(self, form):
-        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
-        user = MySession.get_logged_in_user(session_id)
+        user = get_user(self.request)
         form.instance.user = user
         form.save()
         return redirect('index')
 
     def form_invalid(self, form):
-        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
-        user = MySession.get_logged_in_user(session_id)
+        user = get_user(self.request)
         task_list = Task.objects.filter(user=user, task_archived=False)
-        user_name = TaskList.get_user(self)
         return render(self.request, 'todolist/task_list.html',
-                      {'task_list': task_list, 'form': form, 'user_name': user_name, 'main_list':'True'})
+                      {'task_list': task_list, 'form': form, 'user_name': user.username, 'main_list': 'True'})
 
 
 class TaskUpdate(UpdateView):
