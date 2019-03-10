@@ -9,11 +9,10 @@ class MyAuthMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.path in ['/login/', '/logout/']:
+        if request.path in ['/login/', '/logout/'] or request.path.startswith('/admin/'):
             return response
-        session = MySession()
         session_id = request.COOKIES.get(settings.MY_SESSION_ID)
-        if session_id and session.session_check(session_id):
+        if session_id and MySession.session_check(session_id):
             return response
         else:
             response = redirect('login')

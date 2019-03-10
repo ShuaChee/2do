@@ -1,14 +1,18 @@
 import uuid
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class Task(models.Model):
     task_text = models.CharField(max_length=128, error_messages={'required': 'Please, enter task text'}, blank=False,
                                  null=False)
     task_done = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete='CASCADE')
 
     class Meta:
         ordering = ['-id']
+        managed = True
 
     def __str__(self):
         return self.task_text
@@ -19,15 +23,29 @@ class Task(models.Model):
 
 
 class MySession(models.Model):
-    user_name = models.CharField(max_length=255, null=False, default=None)
+    user = models.ForeignKey(User, on_delete='CASCADE')
     session_id = models.CharField(max_length=255, null=False)
 
-    def new(self, user_name):
-        self.user_name = user_name
+    class Meta:
+        managed = True
+
+    def new(self, user):
+        self.user = user
         self.session_id = uuid.uuid1()
         self.save()
 
-    def session_check(self, session_id):
-        if MySession.objects.get(session_id=session_id):
+    @staticmethod
+    def session_check(session_id):
+        try:
+            MySession.objects.get(session_id=session_id)
             return True
-        return False
+        except MySession.DoesNotExist:
+            return False
+
+    @staticmethod
+    def get_logged_in_user(session_id):
+        try:
+            session = MySession.objects.get(session_id=session_id)
+            return session.user
+        except MySession.DoesNotExist:
+            return False

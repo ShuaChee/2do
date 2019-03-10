@@ -13,22 +13,30 @@ class TaskList(ListView):
     context_object_name = 'task_list'
     paginate_by = 10
 
+    def get_queryset(self):
+        user = self.get_user()
+        query_set = Task.objects.filter(user=user)
+        return query_set
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user_name'] = self.get_user()
+        user = self.get_user()
+        context['user_name'] = user.username
         return context
 
     def get_user(self):
         session_id = self.request.COOKIES[settings.MY_SESSION_ID]
-        session_user = MySession.objects.get(session_id=session_id)
-        return session_user.user_name
-
+        user = MySession.get_logged_in_user(session_id)
+        return user
 
 class TaskCreate(CreateView):
     form_class = TaskForm
     model = Task
 
     def form_valid(self, form):
+        session_id = self.request.COOKIES[settings.MY_SESSION_ID]
+        user = MySession.get_logged_in_user(session_id)
+        form.instance.user = user
         form.save()
         return redirect('index')
 
@@ -72,7 +80,7 @@ class MyLogin(View):
             return render(self.request, 'todolist/login.html', {'errors': 'Invalid username or password'})
         else:
             session = MySession()
-            session.new(user_name=user_name)
+            session.new(user=user)
             response = redirect('index')
             response.set_cookie(settings.MY_SESSION_ID, session.session_id)
             return response
@@ -82,7 +90,7 @@ class MyLogout(View):
     def get(self, request):
         try:
             session_id = request.COOKIES[settings.MY_SESSION_ID]
-        except:
+        except KeyError:
             return redirect('login')
         response = redirect('login')
         response.delete_cookie(settings.MY_SESSION_ID)
